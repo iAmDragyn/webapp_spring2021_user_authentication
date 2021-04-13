@@ -1,15 +1,15 @@
 "use strict";
 
 const passport = require("passport");
-
 const User = require("../models/user"),
+
 getUserParams = body => {
     return {
         firstName: body.firstName,
         lastName: body.lastName,
         email: body.email,
-        password: body.password,
-        zipCode: body.zipCode
+        zipCode: body.zipCode,
+        password: body.password
     };
 };
 
@@ -58,7 +58,7 @@ module.exports = {
     },
 
     validate: (req, res, next) => {
-        req.sanitazeBody("email").normalize({
+        req.sanitizeBody("email").normalizeEmail({
             all_lowercase: true
         }).trim();
 
@@ -87,12 +87,14 @@ module.exports = {
         successRedirect: "/",
         successFlash: "Logged in!"
     }),
+
     logout: (req, res, next) => {
         req.logout();
         req.flash("success", "You have been logged out!");
         res.locals.redirect = "/";
         next();
     },
+    
     redirectView: (req, res, next) => {
         let redirectPath = res.locals.redirect;
         if (redirectPath != undefined) res.redirect(redirectPath);
@@ -121,6 +123,7 @@ module.exports = {
         User.findById(userId)
             .then(user => {
                 res.render("users/edit", { user: user });
+                next();
             })
             .catch(error => {
                 console.log(`Error loading user by ID: ${error.message}`);
